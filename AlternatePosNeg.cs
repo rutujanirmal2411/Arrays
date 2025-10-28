@@ -17,49 +17,46 @@
 // Explanation: Positive and negative numbers alternate. Extra positive numbers are at the end.
 
 // Complexity:
-// Time Complexity: O(n^2)  (due to right rotation during placement)
-// Space Complexity: O(1)    (in-place rearrangement)
+// Time Complexity: O(n)  (due to right rotation during placement)
+// Space Complexity: O(n)   (in-place rearrangement)
 
 using System;
+using System.Collections.Generic;
 
-public class AlternatePosNeg
+public class AlternatePosNegCorrect
 {
     static void Rearrange(int[] arr)
     {
-        int n = arr.Length;
-        int wrongIndex = -1;
+        var pos = new List<int>();
+        var neg = new List<int>();
 
-        for (int i = 0; i < n; i++)
+        // Separate while preserving order
+        foreach (var x in arr)
         {
-            if (wrongIndex >= 0)
-            {
-                // check if element at i can be swapped with wrongIndex
-                if ((arr[wrongIndex] >= 0 && arr[i] < 0) ||
-                    (arr[wrongIndex] < 0 && arr[i] >= 0))
-                {
-                    // right rotation to place arr[i] at wrongIndex
-                    int temp = arr[i];
-                    for (int j = i; j > wrongIndex; j--)
-                        arr[j] = arr[j - 1];
-                    arr[wrongIndex] = temp;
+            if (x >= 0) pos.Add(x);
+            else neg.Add(x);
+        }
 
-                    // if distance > 2, next wrongIndex moves by 2
-                    if (i - wrongIndex > 2)
-                        wrongIndex += 2;
-                    else
-                        wrongIndex = -1;
-                }
+        int p = 0, q = 0, i = 0;
+        // Start with the group that has more elements to minimize leftovers
+        bool pickPos = pos.Count >= neg.Count;
+
+        while (p < pos.Count && q < neg.Count)
+        {
+            if (pickPos)
+            {
+                arr[i++] = pos[p++];
             }
             else
             {
-                // mark index where element is out of place
-                if (((arr[i] >= 0) && (i % 2 == 1)) ||
-                    ((arr[i] < 0) && (i % 2 == 0)))
-                {
-                    wrongIndex = i;
-                }
+                arr[i++] = neg[q++];
             }
+            pickPos = !pickPos;
         }
+
+        // Append remaining elements (if any)
+        while (p < pos.Count) arr[i++] = pos[p++];
+        while (q < neg.Count) arr[i++] = neg[q++];
     }
 
     public static void Main(string[] args)
